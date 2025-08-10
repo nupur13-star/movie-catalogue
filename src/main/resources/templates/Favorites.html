@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en"
+    th:replace="~{fragments/_layout :: html(~{::body}, ${pageTitle})}">
+<body>
+<section class="hero">
+    <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;">
+    <h1 th:text="${pageTitle}">Your Favorites</h1>
+    <a class="btn" th:href="@{/}">← Back to Home</a>
+    </div>
+
+    <!-- Empty state -->
+    <div th:if="${#lists.isEmpty(favorites)}" style="margin-top:14px;">
+    <p>You haven’t added any favorites yet.</p>
+    <p style="margin-top:8px;">
+        <a class="btn" th:href="@{/}">Browse trending movies</a>
+    </p>
+    </div>
+
+    <!-- Grid of favorite movies -->
+    <div class="grid" th:if="${!#lists.isEmpty(favorites)}" style="margin-top:12px;">
+    <div class="card" th:each="f : ${favorites}">
+        <img th:if="${f.posterPath}" th:src="@{${@tmdbClient.fullPosterUrl(f.posterPath)}}" alt="Poster"/>
+        <div class="card__body">
+        <h3 th:text="${f.title}">Title</h3>
+
+        <p class="meta">
+            <span th:text="${f.releaseDate}">2024-01-01</span>
+            <span th:if="${f.rating != null}"> · <span th:text="${#numbers.formatDecimal(f.rating,1,1)}">7.5</span>/10</span>
+        </p>
+
+        <form th:action="@{/favorites/remove}" method="post" style="margin-top:8px;">
+            <input type="hidden" name="tmdbId" th:value="${f.tmdbId}"/>
+            <button class="btn" type="submit">Remove</button>
+        </form>
+        </div>
+    </div>
+    </div>
+</section>
+</body>
+</html>

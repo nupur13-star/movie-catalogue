@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en"
+      th:replace="~{fragments/_layout :: html(~{::body}, ${pageTitle})}">
+<body>
+  <section class="hero" th:if="${detail}">
+    <div class="detail">
+      <div class="detail__poster">
+        <img th:if="${detail.posterPath}" th:src="${@tmdbClient.fullPosterUrl(detail.posterPath())}" alt="Poster"/>
+      </div>
+      <div class="detail__info">
+        <h1 th:text="${detail.title}">Title</h1>
+        <p class="meta">
+          <span th:text="${detail.releaseDate}">2024-01-01</span>
+          <span th:if="${detail.rating != null}"> · <span th:text="${#numbers.formatDecimal(detail.rating,1,1)}">7.5</span>/10</span>
+        </p>
+        <div class="chips" th:if="${detail.genres}">
+          <span class="chip" th:each="g : ${detail.genres}" th:text="${g.name}">Genre</span>
+        </div>
+        <p class="overview" th:text="${detail.overview}">Overview…</p>
+        <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:10px;">
+          <form th:if="${@favoriteService.isFavorite(detail.id())}"
+                th:action="@{/favorites/remove}" method="post">
+            <input type="hidden" name="tmdbId" th:value="${detail.id()}"/>
+            <button class="btn" type="submit">Remove from Favorites</button>
+          </form>
+          <form th:if="${!@favoriteService.isFavorite(detail.id())}"
+                th:action="@{/favorites/add}" method="post">
+            <input type="hidden" name="tmdbId" th:value="${detail.id()}"/>
+            <input type="hidden" name="title" th:value="${detail.title()}"/>
+            <input type="hidden" name="posterPath" th:value="${detail.posterPath()}"/>
+            <input type="hidden" name="releaseDate" th:value="${detail.releaseDate()}"/>
+            <input type="hidden" name="rating" th:value="${detail.rating()}"/>
+            <button class="btn" type="submit">Add to Favorites</button>
+          </form>
+          <a class="btn" th:href="@{/}">← Back</a>
+        </div>
+      </div>
+    </div>
+  </section>
+  <section class="hero" th:if="${error}">
+    <p style="margin:0;">Could not load movie details.</p>
+  </section>
+</body>
+</html>

@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en"
+    th:replace="~{fragments/_layout :: html(~{::body}, ${pageTitle})}">
+<body>
+<section class="hero">
+    <h1 th:text="${pageTitle}">Movies</h1>
+
+    <!-- Search -->
+    <form class="searchbar" th:action="@{/search}" method="get">
+    <input name="q" th:value="${query}" type="text" placeholder="Search movies (e.g., Batman)"/>
+    <button class="btn" type="submit">Search</button>
+    </form>
+
+    <!-- Error banner (shown if TMDb call failed but app kept running) -->
+    <div th:if="${error}" style="background:#fff3cd;border:1px solid #ffe69c;padding:10px 12px;border-radius:10px;margin:8px 0;">
+    <strong>Heads up:</strong> <span th:text="${error}">Something went wrong.</span>
+    </div>
+
+    <!-- Movies grid -->
+    <div class="grid" th:if="${movies}">
+    <div class="card" th:each="m : ${movies}">
+        <a th:href="@{'/movie/' + ${m.id()}}">
+        <img th:if="${m.posterPath()}" th:src="${@tmdbClient.fullPosterUrl(m.posterPath())}" alt="Poster"/>
+        </a>
+        <div class="card__body">
+        <h3 th:text="${m.title()}">Title</h3>
+        <p class="meta">
+            <span th:text="${m.releaseDate()}">2024-01-01</span> ·
+            <span th:text="${#numbers.formatDecimal(m.rating(),1,1)}">7.5</span>/10
+        </p>
+        <p class="overview" th:text="${m.overview()}">Overview…</p>
+
+        <!-- Favorite actions -->
+        <div style="margin-top:10px; display:flex; gap:8px; flex-wrap:wrap;">
+            <!-- If already favorite, show Remove -->
+            <form th:if="${@favoriteService.isFavorite(m.id())}"
+            th:action="@{/favorites/remove}" method="post">
+            <input type="hidden" name="tmdbId" th:value="${m.id()}"/>
+            <button class="btn" type="submit">Remove from Favorites</button>
+            </form>
+
+            <!-- If not favorite, show Add -->
+            <form th:if="${!@favoriteService.isFavorite(m.id())}"
+                th:action="@{/favorites/add}" method="post">
+            <input type="hidden" name="tmdbId" th:value="${m.id()}"/>
+            <input type="hidden" name="title" th:value="${m.title()}"/>
+            <input type="hidden" name="posterPath" th:value="${m.posterPath()}"/>
+            <input type="hidden" name="releaseDate" th:value="${m.releaseDate()}"/>
+            <input type="hidden" name="rating" th:value="${m.rating()}"/>
+            <button class="btn" type="submit">Add to Favorites</button>
+            </form>
+        </div>
+        </div>
+    </div>
+    </div>
+
+    <!-- Empty state -->
+    <p th:if="${movies == null or #lists.isEmpty(movies)}">No movies yet. Try a search!</p>
+</section>
+</body>
+</html>

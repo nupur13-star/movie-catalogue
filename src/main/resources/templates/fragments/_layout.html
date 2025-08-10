@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en" th:fragment="html(content, pageTitle)">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title th:text="${pageTitle} ?: 'ReelVault'">ReelVault</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="/css/styles.css" th:href="@{/css/styles.css}">
+</head>
+<body>
+<header class="nav">
+    <div class="nav__brand">🎬 ReelVault</div>
+    <nav class="nav__links">
+    <a th:href="@{/}">Home</a>
+    <a th:href="@{/favorites}">Favorites</a>
+    <a th:href="@{/h2}" target="_blank">H2</a>
+    </nav>
+</header>
+
+<main class="container">
+    <div th:insert="${content}"></div>
+</main>
+
+<footer class="footer">
+    <small>© <span th:text="${#calendars.format(#dates.createNow(), 'yyyy')}"></span> ReelVault</small>
+</footer>
+</body>
+</html>
